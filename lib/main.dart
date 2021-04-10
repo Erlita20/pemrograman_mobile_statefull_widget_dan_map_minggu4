@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'Input.dart';
 import 'Result.dart';
 import 'Convert.dart';
+import 'RiwayatKonversi.dart';
+import 'DropdownKonversi.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,16 +17,23 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   //controller
   TextEditingController etInput = new TextEditingController();
+
   //variabel berubah
   double _inputUser = 0;
-  // ignore: unused_field
   double _kelvin = 0;
-  // ignore: unused_field
   double _reamur = 0;
 
   //mengeset nilai pada dropdown
-  String _newValue = "Kelvin";
+  String _newValue = "Reamur";
   double _result = 0;
+
+  //buat list
+  var listItem = ["Kelvin", "Reamur"];
+
+  //variable bertipe List<String> (praktikum 2)
+  // ignore: deprecated_member_use
+  List<String> listViewItem = List<String>();
+
   //Fungsi perhitungan suhu perlu untuk diubah sehingga hanya memproses konversi sesuai
   //dengan pilihan pengguna.
   void _konversiSuhu() {
@@ -34,11 +43,18 @@ class _MyAppState extends State<MyApp> {
         _result = _inputUser + 273;
       else
         _result = (4 / 5) * _inputUser;
+      //untuk menampilkan hasil riwayat
+      listViewItem.add("$_newValue : $_result");
     });
   }
 
-  //buat list
-  var listItem = {"Kelvin", "Reamur"};
+//method dropdownOnChanged pada parameter value untuk mengubah pilihan pada dropdown.
+  void dropdownOnChanged(String changeValue) {
+    setState(() {
+      _newValue = changeValue;
+      _konversiSuhu();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,25 +75,23 @@ class _MyAppState extends State<MyApp> {
               children: [
                 Input(etInput: etInput),
                 //memperluas anak row
-                DropdownButton<String>(
-                  items: listItem.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  // isi value dengan variabel _newValue.
-                  value: _newValue,
-                  onChanged: (String changeValue) {
-                    setState(() {
-                      _newValue = changeValue;
-                    });
-                  },
-                ),
+                DropdownKonversi(
+                    listItem: listItem,
+                    newValue: _newValue,
+                    dropdownOnChanged: dropdownOnChanged),
                 Result(
                   result: _result,
                 ),
                 Convert(konvertHandler: _konversiSuhu),
+                //Riwayat Konversi
+                Container(
+                  margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  child: Text(
+                    "Riwayat Konversi",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+                Expanded(child: RiwayatKonversi(listViewItem: listViewItem)),
               ],
             ),
           ),
